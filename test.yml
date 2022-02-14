@@ -1,0 +1,10 @@
+---
+  - hosts: prod
+    vars: 
+      a: shrishti
+    tasks:
+           - name: print a msg
+             debug:
+                 msg: hello this is {{ a }}
+
+
