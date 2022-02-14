@@ -1,0 +1,33 @@
+---
+  - hosts: prod
+    tasks:
+             - name: install httpd
+               yum:
+                      name: httpd
+                      state: latest
+             - name: start a service
+               service:       
+                      name: httpd
+                      state: started
+                      enabled: yes
+               register: doc
+             - debug:
+                       var: doc
+             - name: copy a file to manage host
+               copy:      
+                      src: ./index.html
+                      dest: /var/www/html/index.html
+             - name: restart a service
+               service:
+                      name: httpd
+                      state: restarted
+             - name: add port to firewall
+               firewalld:
+                      port: 80/tcp
+                      state: enabled
+                      permanent: yes
+                      immediate: yes
+              
+         
+
+
