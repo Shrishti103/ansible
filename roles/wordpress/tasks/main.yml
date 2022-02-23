@@ -1,0 +1,65 @@
+---
+ - name: install wordpress
+   package:
+           name: "{{ item }}"
+           state: present
+   with items: "{{ wordpress_packages }}"
+ - name: create wordpress database
+   mysql_db:
+           name: "{{ wordpress_database }}"
+           state: present
+
+ - name: create replica user
+   command: 'mysql -ne "{{ item }}"'
+   with_items:
+           - FLUSH PRIVILEGES
+ - name: apache config file for wordpress
+   template:
+           src: wordpress.conf.j2
+           dest: "{{ wordpress_httpd_configuration}}"
+           owner: root
+           group: root
+           mode: '0664'
+ - name: download salts
+   get_url:
+    url: https://api.wordpress.org/secret-key/1.1/salt/
+    dest: "{{ wordpress_directory }}/wp-salts.php"
+    seuser: system_u
+    setype: httpd_sys_script_exec_t
+    force: no
+  notify: restart httpd
+
+- name: Insert PHP start tag in Salts file
+  lineinfile:
+    dest: "{{ wordpress_directory }}/wp-salts.php"
+    line: '<?php'
+    state: present
+    insertbefore: BOF
+  notify: restart httpd
+
+- name: Insert PHP end tag in Salts file
+  lineinfile:
+    dest: "{{ wordpress_directory }}/wp-salts.php"
+    line: '?>'
+    state: present
+    insertafter: EOF
+  notify: restart httpd
+
+- name: Wordpress config file
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_configuration }}"
+    owner: root
+    group: apache
+    mode: '0640'
+  notify: restart httpd
+- name: Stop  mariadb
+  service:
+    name: "{{ mysql_service_name }}"
+    state: stopped
+- name: Start  mariadb
+  service:
+    name: "{{ mysql_service_name }}"
+    state: started
+
+# tasks file for wordpress

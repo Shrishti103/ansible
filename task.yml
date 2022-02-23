@@ -1,0 +1,19 @@
+---
+  - hosts: 192.168.174.128
+    tasks:
+            - block:
+                    - name: install httpd
+                      yum:
+                              name: httpd
+                              state: present
+              rescue:
+                    - name: install apache
+                      apt:
+                              name: apache2
+                              state: present
+              always: 
+                    - name: copy a file
+                      copy: 
+                              src: ./index.html
+                              dest: /var/www/html/
+

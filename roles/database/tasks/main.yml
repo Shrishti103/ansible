@@ -1,0 +1,39 @@
+---
+ - name: install mysql
+   yum:
+           name:
+                   - mariadb*
+                   - python3-PyMySQL  
+           state: present
+ - name: restart mysql
+   service:
+           name: mariadb.service
+           state: started
+           enabled: yes
+ - name: add firewall
+   firewalld:
+           port: 3306/tcp
+           state: enabled
+           permanent: yes
+           immediate: yes
+ - name: create a user for database
+   mysql_user:
+           name: bob
+           password: a
+           state: present
+           priv: '*.*:ALL'
+          
+ - name: mysql bob password
+   mysql_user:
+           login_user: bob
+           login_password: a
+           user: bob
+           check_implicit_admin: true
+           password: a
+           host: localhost
+ - name: create a databse
+   mysql_db:
+           name: testdb
+           state: present
+           login_user: bob
+           login_password: a

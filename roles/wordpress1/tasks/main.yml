@@ -1,0 +1,24 @@
+---
+ - name: create a database for wordpress
+   mysql_db:
+           name: wordpress
+           state: present
+ - name: create downloads directory
+   file:
+           path: "/var/www/html/downloads"
+           state: directory
+ - name: create target directory
+   file:
+           path: "/var/www/html/wordpress"
+           state: directory
+ - name: download wordpress
+   get_url:
+           url: https://wordpress.org/latest.php
+           dest: "/home/grras/downloads/wordpress-latest.zip"
+           remote_src: yes
+ - name: extract to /var/www/html
+   unarchive:
+           src: "home/grras/downloads/wordpress-latest.zip"
+           dest: "/var/www/html"
+
+

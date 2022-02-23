@@ -1,0 +1,28 @@
+---
+  - hosts: dev
+    tasks:
+            - name: install httpd
+              yum:
+                      name: httpd
+                      state: latest
+              ignore_errors: yes
+
+            - copy: 
+                      src: ./index.html
+                      dest: /var/www/html/
+              notify: restarted
+            - service:
+
+                    name: httpd
+                    state: started
+            - firewalld:
+                    port: 80/tcp
+                    permanent: yes
+                    state: enabled
+                    immediate: yes
+
+    handlers:
+            - name: restarted
+              service:
+                    name: httpd
+                    state: restarted            
